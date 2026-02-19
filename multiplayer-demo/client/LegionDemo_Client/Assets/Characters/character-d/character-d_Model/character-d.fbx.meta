@@ -3,7 +3,12 @@ guid: 7561c2c42b6efcf43b6ae1987477d6e1
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: texture-d
+    second: {fileID: 2100000, guid: 4d98a8b94c7371241b6f02fddaa483ce, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -99,7 +104,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0
