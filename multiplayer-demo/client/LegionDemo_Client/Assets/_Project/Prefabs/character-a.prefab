@@ -427,10 +427,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skins:
+  - {fileID: 2100000, guid: 67130d37511fd3649a7a758164edb108, type: 2}
+  - {fileID: 2100000, guid: ca87e432784a0db4cae0872b084dc305, type: 2}
   - {fileID: 2100000, guid: 33089929e17d7f94cb5e050a9f21e1eb, type: 2}
-  - {fileID: 2100000, guid: 9017e70d4ce4d394e9945155c45e5aa5, type: 2}
-  - {fileID: 2100000, guid: 822315471ba27124ab51234ce5f8a205, type: 2}
-  - {fileID: -947819958822077965, guid: 3cc08725981e01c42b3b06121eee1acc, type: 3}
+  - {fileID: 2100000, guid: 28cf6ba855c223f4c8d63a291e9b4b90, type: 2}
 --- !u!1 &6134694864548462570
 GameObject:
   m_ObjectHideFlags: 0
