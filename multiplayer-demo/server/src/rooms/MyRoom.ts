@@ -1,56 +1,72 @@
-
-
 import { Room, Client } from "colyseus";
 import { GameState } from "../schema/GameState.js";
 import { Player } from "../schema/Player.js";
 
 export class MyRoom extends Room {
   maxClients = 4;
-
-  // Recommended v0.17 style: initialize state as class property
   state = new GameState();
 
   onCreate(options: any) {
-    // You can add more initialization logic here if needed
-    // (no need to call this.state(...) anymore)
 
+    // ===== MOVEMENT + WALK/IDLE =====
     this.onMessage("move", (client, data) => {
-      let p = this.state.players.get(client.sessionId);
+      const p = this.state.players.get(client.sessionId);
       if (!p) return;
 
       p.x = data.x;
       p.y = data.y;
       p.z = data.z;
       p.rotY = data.rotY;
-      p.anim = data.anim;
+
+      // animation string from client
+      p.anim = data.anim ?? "idle";
     });
 
+    // ===== JUMP =====
     this.onMessage("jump", (client) => {
-      let p = this.state.players.get(client.sessionId);
-      if (p) p.jumping = true;
+      const p = this.state.players.get(client.sessionId);
+      if (!p) return;
+
+      p.jumping = true;
+      p.anim = "jump";
+
+      // auto reset so trigger fires once
+      setTimeout(() => {
+        if (p) p.jumping = false;
+      }, 100);
     });
 
+    // ===== SIT =====
     this.onMessage("sit", (client, sit) => {
-      let p = this.state.players.get(client.sessionId);
-      if (p) p.sitting = sit;
+      const p = this.state.players.get(client.sessionId);
+      if (!p) return;
+
+      p.anim = sit ? "sit" : "idle";
     });
 
+    // ===== SKIN =====
     this.onMessage("skin", (client, id) => {
-      let p = this.state.players.get(client.sessionId);
-      if (p) p.skin = id;
+      const p = this.state.players.get(client.sessionId);
+      if (!p) return;
+
+      p.skin = id;
     });
   }
 
-  onJoin(client: Client, options: any) {
-    console.log(client.sessionId, "joined!");
-    const player = new Player();
+  // ===== PLAYER JOIN =====
+  onJoin(client: Client) {
+    console.log(client.sessionId, "joined");
 
-    // Ensure your GameState schema has a MapSchema named 'players'
+    const player = new Player();
+    player.anim = "idle";
+    player.skin = 0;
+
     this.state.players.set(client.sessionId, player);
   }
 
+  // ===== PLAYER LEAVE CLEANUP =====
   onLeave(client: Client, code: number) {
+    console.log(client.sessionId, "left", code);
     this.state.players.delete(client.sessionId);
-    console.log(client.sessionId, "left with code:", code);
   }
 }

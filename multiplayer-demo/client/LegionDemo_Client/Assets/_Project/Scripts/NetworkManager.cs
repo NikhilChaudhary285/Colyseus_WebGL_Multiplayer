@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class NetworkManager : MonoBehaviour
 {
     public static NetworkManager Instance;
+    public GameObject playerPrefab;
 
     Client client;
     public Room<GameState> room;
@@ -44,7 +45,8 @@ public class NetworkManager : MonoBehaviour
             {
                 Debug.Log("Spawn player: " + id);
 
-                obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                //obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                obj = Instantiate(playerPrefab);
                 obj.name = "Player_" + id;
 
                 var controller = obj.AddComponent<PlayerController>();
