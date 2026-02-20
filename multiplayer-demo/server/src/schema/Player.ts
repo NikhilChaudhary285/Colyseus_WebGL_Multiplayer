@@ -9,7 +9,8 @@ export class Player extends Schema {
   @type("number") rotY = 0;
 
   @type("boolean") jumping = false;
-  @type("string") anim = "Idle";
+  @type("boolean") sitting = false;
 
+  @type("string") anim = "idle";
   @type("number") skin = 0;
 }

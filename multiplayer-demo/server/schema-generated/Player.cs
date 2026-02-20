@@ -30,10 +30,13 @@ public Player() { }
 	[Type(4, "boolean")]
 	public bool jumping = default(bool);
 
-	[Type(5, "string")]
+	[Type(5, "boolean")]
+	public bool sitting = default(bool);
+
+	[Type(6, "string")]
 	public string anim = default(string);
 
-	[Type(6, "number")]
+	[Type(7, "number")]
 	public float skin = default(float);
 }
 

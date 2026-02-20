@@ -14,33 +14,31 @@ export class MyRoom extends Room {
     // You can add more initialization logic here if needed
     // (no need to call this.state(...) anymore)
 
-    this.onMessage("input", (client, data) => {
+    this.onMessage("move", (client, data) => {
+      let p = this.state.players.get(client.sessionId);
+      if (!p) return;
 
-      const player = this.state.players.get(client.sessionId);
-      if (!player) return;
-
-      const speed = 5;
-
-      player.x += data.moveX * speed * 0.016;
-      player.z += data.moveZ * speed * 0.016;
-
-      player.rotY = data.rotY;
-
-      if (data.jump) {
-        player.jumping = true;
-        player.anim = "Jump";
-      } else {
-        player.jumping = false;
-        player.anim = "Idle";
-      }
-
-      if (data.sit) {
-        player.anim = "Sit";
-      }
-
-      player.skin = data.skin;
+      p.x = data.x;
+      p.y = data.y;
+      p.z = data.z;
+      p.rotY = data.rotY;
+      p.anim = data.anim;
     });
 
+    this.onMessage("jump", (client) => {
+      let p = this.state.players.get(client.sessionId);
+      if (p) p.jumping = true;
+    });
+
+    this.onMessage("sit", (client, sit) => {
+      let p = this.state.players.get(client.sessionId);
+      if (p) p.sitting = sit;
+    });
+
+    this.onMessage("skin", (client, id) => {
+      let p = this.state.players.get(client.sessionId);
+      if (p) p.skin = id;
+    });
   }
 
   onJoin(client: Client, options: any) {

@@ -3,24 +3,35 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public bool isLocal;
+    public Animator animator;
+
+    float speed = 5f;
 
     void Update()
     {
         if (!isLocal) return;
 
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
 
-        float rot = transform.eulerAngles.y;
+        Vector3 move = new Vector3(h, 0, v);
+        transform.position += move * speed * Time.deltaTime;
 
-        NetworkManager.Instance.room.Send("input", new
+        bool walking = move.magnitude > 0.1f;
+        animator.SetBool("walk", walking);
+
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            moveX = x,
-            moveZ = z,
-            rotY = rot,
-            jump = Input.GetKey(KeyCode.Space),
-            sit = Input.GetKey(KeyCode.C),
-            skin = 0
-        });
+            animator.SetTrigger("jump");
+            NetworkManager.Instance.SendJump();
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            animator.SetBool("sit", !animator.GetBool("sit"));
+            NetworkManager.Instance.SendSit(animator.GetBool("sit"));
+        }
+
+        NetworkManager.Instance.SendMove(transform.position, transform.eulerAngles.y, walking);
     }
 }
