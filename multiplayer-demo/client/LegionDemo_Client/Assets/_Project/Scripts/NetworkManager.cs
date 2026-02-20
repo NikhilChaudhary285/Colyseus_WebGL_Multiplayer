@@ -51,25 +51,19 @@ public class NetworkManager : MonoBehaviour
             }
 
             // ===== POSITION SYNC =====
-            Vector3 targetPos = new Vector3(player.x, 0f, player.z);
-            go.transform.position = Vector3.Lerp(
-                go.transform.position,
-                targetPos,
-                Time.deltaTime * 12f
-            );
+            // Only sync REMOTE players (not the local one)
+            if (id != room.SessionId)
+            {
+                go.transform.position = Vector3.Lerp(
+                    go.transform.position,
+                    new Vector3(player.x, player.y, player.z),
+                    Time.deltaTime * 12f
+                );
+            }
 
             go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
 
             // ===== ANIMATIONS =====
-            //Animator anim = go.GetComponent<Animator>();
-            //if (anim != null)
-            //{
-            //    anim.SetBool("walk", player.anim == "walk");
-            //    anim.SetBool("sit", player.anim == "sit");
-
-            //    if (player.jumping)
-            //        anim.SetTrigger("jump");
-            //}
             Animator anim = go.GetComponent<Animator>();
             if (anim != null)
             {
