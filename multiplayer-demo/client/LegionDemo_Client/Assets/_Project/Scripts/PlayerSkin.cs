@@ -3,11 +3,11 @@ using UnityEngine;
 public class PlayerSkin : MonoBehaviour
 {
     public Material[] skins;
-    Renderer rend;
+    Renderer [] renderers;
 
     void Awake()
     {
-        rend = GetComponentInChildren<Renderer>();
+        renderers = GetComponentsInChildren<Renderer>();
     }
 
     public void ApplySkin(int id)
@@ -15,6 +15,9 @@ public class PlayerSkin : MonoBehaviour
         if (skins == null || skins.Length == 0) return;
         if (id < 0 || id >= skins.Length) return;
 
-        rend.material = skins[id];
+        foreach (var item in renderers)
+        {
+            item.material = skins[id];
+        }
     }
 }

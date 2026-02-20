@@ -4,16 +4,13 @@ public class PlayerController : MonoBehaviour
 {
     public bool isLocal;
 
-    float speed = 4f;
+    float speed = 3.5f;
     float rotSpeed = 120f;
-    CharacterController cc;
 
     void Start()
     {
-        cc = gameObject.AddComponent<CharacterController>();
-        if (!isLocal)
+        if (!isLocal || isLocal)
         {
-            // disable UI if not local player
             var ui = FindObjectOfType<SkinSwitcher>();
             if (ui) ui.gameObject.SetActive(false);
         }
@@ -30,12 +27,16 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(0, h * rotSpeed * Time.deltaTime, 0);
 
         // MOVE
-        Vector3 move = transform.forward * v * speed;
-        cc.SimpleMove(move);
+        transform.position += transform.forward * 10f * speed * Time.deltaTime;
 
-        bool walking = Mathf.Abs(v) > 0.1f;
+        bool walking = Mathf.Abs(v) > 0.05f;
 
-        // SEND MOVE TO SERVER
+        // LOCAL ANIMATION CONTROL
+        Animator anim = GetComponent<Animator>();
+        if (anim != null)
+            anim.SetBool("walk", walking);
+
+        // SEND TO SERVER
         NetworkManager.Instance.SendMove(
             transform.position,
             transform.eulerAngles.y,
@@ -44,16 +45,25 @@ public class PlayerController : MonoBehaviour
 
         // JUMP
         if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (anim != null) anim.SetTrigger("jump");
             NetworkManager.Instance.SendJump();
+        }
 
-        // SIT TOGGLE
+        // SIT
         if (Input.GetKeyDown(KeyCode.C))
+        {
+            if (anim != null) anim.SetBool("sit", true);
             NetworkManager.Instance.SendSit(true);
+        }
 
         if (Input.GetKeyUp(KeyCode.C))
+        {
+            if (anim != null) anim.SetBool("sit", false);
             NetworkManager.Instance.SendSit(false);
+        }
 
-        // SKIN CHANGE (1–4 keys demo)
+        // SKINS
         if (Input.GetKeyDown(KeyCode.Alpha1)) NetworkManager.Instance.SendSkin(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) NetworkManager.Instance.SendSkin(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) NetworkManager.Instance.SendSkin(2);

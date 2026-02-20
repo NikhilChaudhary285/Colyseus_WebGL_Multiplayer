@@ -26,97 +26,84 @@ public class NetworkManager : MonoBehaviour
     {
         room = await client.JoinOrCreate<GameState>("my_room");
         Debug.Log("Joined room: " + room.RoomId);
-
         room.OnStateChange += OnStateChange;
     }
 
-    void OnStateChange(GameState state, bool isFirstState)
+    void OnStateChange(GameState state, bool first)
     {
-        // ===== SPAWN / UPDATE PLAYERS =====
-        state.players.ForEach((id, playerObj) =>
+        state.players.ForEach((id, obj) =>
         {
-            Player player = playerObj as Player;
+            Player player = obj as Player;
             if (player == null) return;
 
-            GameObject obj = PlayerRegistry.Get(id);
+            GameObject go = PlayerRegistry.Get(id);
 
-            // ===== SPAWN IF NEW =====
-            if (obj == null)
+            // ===== SPAWN =====
+            if (go == null)
             {
-                Debug.Log("Spawn player: " + id);
+                go = Instantiate(playerPrefab);
+                go.name = "Player_" + id;
 
-                //obj = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                obj = Instantiate(playerPrefab);
-                obj.name = "Player_" + id;
-
-                var controller = obj.AddComponent<PlayerController>();
+                var controller = go.AddComponent<PlayerController>();
                 controller.isLocal = (id == room.SessionId);
 
-                // Add Animator placeholder if prefab not used yet
-                if (obj.GetComponent<Animator>() == null)
-                    obj.AddComponent<Animator>();
-
-                PlayerRegistry.Add(id, obj);
+                PlayerRegistry.Add(id, go);
             }
 
-            // ===== POSITION SMOOTH SYNC =====
-            obj.transform.position = Vector3.Lerp(
-                obj.transform.position,
-                new Vector3(player.x, player.y, player.z),
-                Time.deltaTime * 10f
+            // ===== POSITION SYNC =====
+            Vector3 targetPos = new Vector3(player.x, 0f, player.z);
+            go.transform.position = Vector3.Lerp(
+                go.transform.position,
+                targetPos,
+                Time.deltaTime * 12f
             );
 
-            // ===== ROTATION SYNC =====
-            obj.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
+            go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
 
-            // ===== ANIMATION SYNC =====
-            var anim = obj.GetComponent<Animator>();
+            // ===== ANIMATIONS =====
+            //Animator anim = go.GetComponent<Animator>();
+            //if (anim != null)
+            //{
+            //    anim.SetBool("walk", player.anim == "walk");
+            //    anim.SetBool("sit", player.anim == "sit");
+
+            //    if (player.jumping)
+            //        anim.SetTrigger("jump");
+            //}
+            Animator anim = go.GetComponent<Animator>();
             if (anim != null)
             {
-                // Reset bools first
-                anim.SetBool("walk", false);
-                anim.SetBool("sit", false);
+                bool isLocalPlayer = (id == room.SessionId);
 
-                // WALK
-                if (player.anim == "walk")
-                    anim.SetBool("walk", true);
+                // Only sync animation for OTHER players
+                if (!isLocalPlayer)
+                {
+                    anim.SetBool("walk", player.anim == "walk");
+                    anim.SetBool("sit", player.anim == "sit");
 
-                // SIT
-                else if (player.anim == "sit")
-                    anim.SetBool("sit", true);
-
-                // IDLE fallback
-                else
-                    anim.Play("Idle");
-
-                // JUMP trigger
-                if (player.jumping)
-                    anim.SetTrigger("jump");
+                    if (player.jumping)
+                        anim.SetTrigger("jump");
+                }
             }
 
             // ===== SKIN SYNC =====
-            var skin = obj.GetComponent<PlayerSkin>();
+            var skin = go.GetComponent<PlayerSkin>();
             if (skin != null)
                 skin.ApplySkin((int)player.skin);
         });
 
-        // ===== CLEANUP REMOVED PLAYERS =====
-        List<string> toRemove = new List<string>();
+        // ===== CLEANUP =====
+        List<string> remove = new List<string>();
 
         foreach (var id in PlayerRegistry.AllIds())
-        {
             if (!state.players.ContainsKey(id))
-                toRemove.Add(id);
-        }
+                remove.Add(id);
 
-        foreach (var id in toRemove)
-        {
-            Debug.Log("Remove player: " + id);
+        foreach (var id in remove)
             PlayerRegistry.Remove(id);
-        }
     }
 
-    // ================= SEND INPUT TO SERVER =================
+    // ===== SEND INPUT =====
 
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
