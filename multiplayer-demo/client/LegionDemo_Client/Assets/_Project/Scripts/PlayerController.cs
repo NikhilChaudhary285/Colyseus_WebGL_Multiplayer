@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     public bool isLocal;
@@ -8,21 +9,20 @@ public class PlayerController : MonoBehaviour
     float rotSpeed = 120f;
 
     Animator anim;
+    CharacterController controller;
 
-    // ===== JUMP PHYSICS =====
+    // ===== GRAVITY / JUMP =====
     float verticalVelocity = 0f;
-    float gravity = -22f;
+    float gravity = -25f;
     float jumpForce = 7f;
-    bool isGrounded = true;
 
     void Start()
     {
         anim = GetComponent<Animator>();
+        controller = GetComponent<CharacterController>();
 
-        // Force-disable root motion (extra safety)
         if (anim) anim.applyRootMotion = false;
 
-        // Disable skin UI for remote players only
         if (!isLocal)
         {
             var ui = FindObjectOfType<SkinSwitcher>();
@@ -43,42 +43,39 @@ public class PlayerController : MonoBehaviour
             transform.Rotate(0f, h * rotSpeed * Time.deltaTime, 0f);
         }
 
-        // ===== HORIZONTAL MOVEMENT =====
+        // ===== MOVE VECTOR =====
         Vector3 move = Vector3.zero;
 
         if (Mathf.Abs(v) > 0.01f)
         {
-            move += transform.forward * v * speed * Time.deltaTime;
+            move += transform.forward * v * speed;
         }
 
-        // ===== GRAVITY =====
-        if (!isGrounded)
+        // ===== GROUND CHECK =====
+        if (controller.isGrounded)
         {
-            verticalVelocity += gravity * Time.deltaTime;
+            if (verticalVelocity < 0)
+                verticalVelocity = -2f; // keeps grounded
+
+            // ===== JUMP =====
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                verticalVelocity = jumpForce;
+                if (anim) anim.SetTrigger("jump");
+                NetworkManager.Instance.SendJump();
+            }
         }
 
-        move.y = verticalVelocity * Time.deltaTime;
+        // ===== APPLY GRAVITY =====
+        verticalVelocity += gravity * Time.deltaTime;
+        move.y = verticalVelocity;
 
-        transform.position += move;
+        // ===== APPLY MOVEMENT =====
+        controller.Move(move * Time.deltaTime);
 
-        // ===== SIMPLE GROUND CHECK =====
-        if (transform.position.y <= 0f)
-        {
-            Vector3 p = transform.position;
-            p.y = 0f;
-            transform.position = p;
-
-            verticalVelocity = 0f;
-            isGrounded = true;
-        }
-
-        // ===== WALK DETECTION =====
+        // ===== WALK ANIMATION =====
         bool walking = Mathf.Abs(v) > 0.15f;
-
-        if (anim)
-        {
-            anim.SetBool("walk", walking);
-        }
+        if (anim) anim.SetBool("walk", walking);
 
         // ===== SEND TO SERVER =====
         NetworkManager.Instance.SendMove(
@@ -86,16 +83,6 @@ public class PlayerController : MonoBehaviour
             transform.eulerAngles.y,
             walking
         );
-
-        // ===== JUMP =====
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            verticalVelocity = jumpForce;
-            isGrounded = false;
-
-            if (anim) anim.SetTrigger("jump");
-            NetworkManager.Instance.SendJump();
-        }
 
         // ===== SIT =====
         if (Input.GetKeyDown(KeyCode.C))
