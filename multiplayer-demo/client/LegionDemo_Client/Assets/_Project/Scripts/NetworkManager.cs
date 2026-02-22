@@ -14,16 +14,10 @@ public class NetworkManager : MonoBehaviour
     public Room<GameState> room;
     public string CurrentRoomCode;
 
-    [Header("Localhost Server URL")]
     [SerializeField] string localhostServerURL = "ws://localhost:2567";
-
-    [Header("Cloud Server URL")]
     [SerializeField] string cloudServerURL = "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
-
-    [Header("Use Cloud?")]
     [SerializeField] bool useCloud = false;
 
-    // EVENTS
     public Action<string> OnRoomJoined;
     public Action<List<Player>> OnPlayerListUpdated;
     public Action<int> OnCountdown;
@@ -31,6 +25,9 @@ public class NetworkManager : MonoBehaviour
 
     bool matchStartedTriggered = false;
     int lastCountdown = -1;
+
+    // NEW: store previous jump state per player
+    Dictionary<string, bool> lastJumpState = new Dictionary<string, bool>();
 
     public bool IsHost =>
         room != null &&
@@ -40,10 +37,8 @@ public class NetworkManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-
         string url = useCloud ? cloudServerURL : localhostServerURL;
         client = new Client(url);
-
         Debug.Log("Connecting to: " + url);
     }
 
@@ -51,9 +46,7 @@ public class NetworkManager : MonoBehaviour
     {
         room = await client.Create<GameState>("my_room");
         CurrentRoomCode = room.RoomId;
-
         room.OnStateChange += OnStateChange;
-
         SendName(playerName);
         OnRoomJoined?.Invoke(CurrentRoomCode);
     }
@@ -62,9 +55,7 @@ public class NetworkManager : MonoBehaviour
     {
         room = await client.JoinById<GameState>(code);
         CurrentRoomCode = code;
-
         room.OnStateChange += OnStateChange;
-
         SendName(playerName);
         OnRoomJoined?.Invoke(code);
     }
@@ -72,25 +63,23 @@ public class NetworkManager : MonoBehaviour
     void OnStateChange(GameState state, bool first)
     {
         List<Player> playerList = new List<Player>();
+        HashSet<string> currentIds = new HashSet<string>();
 
         state.players.ForEach((id, obj) =>
         {
             Player player = obj as Player;
             if (player == null) return;
 
+            currentIds.Add(id);
             playerList.Add(player);
 
             GameObject go = PlayerRegistry.Get(id);
 
-            // SPAWN PLAYER IF NOT EXISTS
             if (go == null)
             {
                 go = Instantiate(playerPrefab);
-
-                // APPLY SERVER SPAWN POSITION
                 go.transform.position = new Vector3(player.x, player.y, player.z);
                 go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
-
                 go.name = "Player_" + id;
 
                 var controller = go.AddComponent<PlayerController>();
@@ -99,14 +88,12 @@ public class NetworkManager : MonoBehaviour
                 PlayerRegistry.Add(id, go);
             }
 
-            // ===== APPLY SKIN (THIS WAS MISSING) =====
+            // SKIN
             var skin = go.GetComponent<PlayerSkin>();
             if (skin != null)
-            {
                 skin.ApplySkin((int)player.skin);
-            }
 
-            // APPLY MOVEMENT ONLY AFTER MATCH START
+            // MOVEMENT
             if (state.matchStarted && id != room.SessionId)
             {
                 go.transform.position = Vector3.Lerp(
@@ -119,36 +106,43 @@ public class NetworkManager : MonoBehaviour
             go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
 
             // ===== ANIMATION SYNC =====
-            if (id != room.SessionId) // only remote players
+            if (id != room.SessionId)
             {
                 var animator = go.GetComponent<Animator>();
                 if (animator != null)
                 {
-                    // WALK
                     animator.SetBool("walk", player.anim == "walk");
-
-                    // SIT
                     animator.SetBool("sit", player.sitting);
 
-                    // JUMP (trigger)
-                    if (player.jumping)
-                    {
+                    bool wasJumping = lastJumpState.ContainsKey(id) && lastJumpState[id];
+
+                    // trigger only on false -> true transition
+                    if (!wasJumping && player.jumping)
                         animator.SetTrigger("jump");
-                    }
+
+                    lastJumpState[id] = player.jumping;
                 }
             }
         });
 
+        // ===== REMOVE DISCONNECTED PLAYERS =====
+        foreach (var id in new List<string>(PlayerRegistry.AllIds()))
+        {
+            if (!currentIds.Contains(id))
+            {
+                PlayerRegistry.Remove(id);
+                lastJumpState.Remove(id);
+            }
+        }
+
         OnPlayerListUpdated?.Invoke(playerList);
 
-        // COUNTDOWN EVENT
         if (lastCountdown != (int)state.countdown)
         {
             lastCountdown = (int)state.countdown;
             OnCountdown?.Invoke(lastCountdown);
         }
 
-        // MATCH START EVENT
         if (state.matchStarted && !matchStartedTriggered)
         {
             matchStartedTriggered = true;
@@ -158,9 +152,6 @@ public class NetworkManager : MonoBehaviour
 
     public void RequestStartGame() => room?.Send("startGame");
 
-    // =============================
-    // INPUT MESSAGES (GAMEPLAY)
-    // =============================
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
         room?.Send("move", new
@@ -172,6 +163,7 @@ public class NetworkManager : MonoBehaviour
             anim = walking ? "walk" : "idle"
         });
     }
+
     public void SendJump() => room?.Send("jump");
     public void SendSit(bool sit) => room?.Send("sit", sit);
     public void SendSkin(int id) => room?.Send("skin", id);
