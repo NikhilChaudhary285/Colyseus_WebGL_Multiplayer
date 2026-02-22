@@ -2,6 +2,8 @@
 using Colyseus;
 using Colyseus.Schema;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -10,35 +12,100 @@ public class NetworkManager : MonoBehaviour
 
     Client client;
     public Room<GameState> room;
+    public string CurrentRoomCode;
 
-    async void Awake()
+    [Header("Localhost Server URL")]
+    [SerializeField] string localhostServerURL = "ws://localhost:2567";
+
+    [Header("Cloud Server URL")]
+    [SerializeField] string cloudServerURL =
+        "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
+
+    [Header("Use Cloud?")]
+    [SerializeField] bool useCloud = false;
+
+    // ===== EVENTS FOR UI =====
+    public Action<string> OnRoomJoined;
+    public Action<List<Player>> OnPlayerListUpdated;
+
+    void Awake()
     {
         Instance = this;
-        client = new Client("ws://localhost:2567");
+
+        string url = useCloud ? cloudServerURL : localhostServerURL;
+        client = new Client(url);
+
+        Debug.Log("Connecting to: " + url);
     }
 
-    async void Start()
+    // =============================
+    // CREATE ROOM
+    // =============================
+    public async Task CreateRoom(string playerName)
     {
-        await CreateRoom();
+        try
+        {
+            room = await client.Create<GameState>("my_room");
+
+            CurrentRoomCode = room.RoomId;
+            Debug.Log("Created Room: " + CurrentRoomCode);
+            Debug.Log("Session ID: " + room.SessionId);
+
+            room.OnStateChange += OnStateChange;
+
+            SendName(playerName);
+
+            OnRoomJoined?.Invoke(CurrentRoomCode);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Create Room Failed: " + e);
+        }
     }
 
-    public async System.Threading.Tasks.Task CreateRoom()
+    // =============================
+    // JOIN ROOM
+    // =============================
+    public async Task JoinRoomByCode(string code, string playerName)
     {
-        room = await client.JoinOrCreate<GameState>("my_room");
-        Debug.Log("Joined room: " + room.RoomId);
-        room.OnStateChange += OnStateChange;
+        try
+        {
+            room = await client.JoinById<GameState>(code);
+
+            CurrentRoomCode = code;
+            Debug.Log("Joined Room: " + code);
+            Debug.Log("Session ID: " + room.SessionId);
+
+            room.OnStateChange += OnStateChange;
+
+            SendName(playerName);
+
+            OnRoomJoined?.Invoke(code);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Join Failed: " + e);
+        }
     }
 
+    // =============================
+    // STATE SYNC
+    // =============================
     void OnStateChange(GameState state, bool first)
     {
+        Debug.Log("STATE UPDATE RECEIVED");
+
+        List<Player> playerList = new List<Player>();
+
         state.players.ForEach((id, obj) =>
         {
             Player player = obj as Player;
             if (player == null) return;
 
+            playerList.Add(player);
+
             GameObject go = PlayerRegistry.Get(id);
 
-            // ===== SPAWN =====
             if (go == null)
             {
                 go = Instantiate(playerPrefab);
@@ -50,8 +117,6 @@ public class NetworkManager : MonoBehaviour
                 PlayerRegistry.Add(id, go);
             }
 
-            // ===== POSITION SYNC =====
-            // Only sync REMOTE players (not the local one)
             if (id != room.SessionId)
             {
                 go.transform.position = Vector3.Lerp(
@@ -63,48 +128,48 @@ public class NetworkManager : MonoBehaviour
 
             go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
 
-            // ===== ANIMATIONS =====
-            Animator anim = go.GetComponent<Animator>();
-            if (anim != null)
-            {
-                bool isLocalPlayer = (id == room.SessionId);
-
-                // Only sync animation for OTHER players
-                if (!isLocalPlayer)
-                {
-                    anim.SetBool("walk", player.anim == "walk");
-                    anim.SetBool("sit", player.anim == "sit");
-
-                    if (player.jumping)
-                        anim.SetTrigger("jump");
-                }
-            }
-
-            // ===== SKIN SYNC =====
             var skin = go.GetComponent<PlayerSkin>();
             if (skin != null)
                 skin.ApplySkin((int)player.skin);
         });
 
-        // ===== CLEANUP =====
-        List<string> remove = new List<string>();
+        OnPlayerListUpdated?.Invoke(playerList);
+        if (AreAllPlayersReady())
+        {
+            Debug.Log("ALL PLAYERS READY → START GAME");
 
-        foreach (var id in PlayerRegistry.AllIds())
-            if (!state.players.ContainsKey(id))
-                remove.Add(id);
-
-        foreach (var id in remove)
-            PlayerRegistry.Remove(id);
+            GameStartController.Instance?.StartGame();
+        }
     }
 
-    // ===== SEND INPUT =====
+    public bool AreAllPlayersReady()
+    {
+        if (room == null || room.State == null) return false;
+
+        int count = 0;
+        int ready = 0;
+
+        room.State.players.ForEach((id, obj) =>
+        {
+            Player p = obj as Player;
+            if (p == null) return;
+
+            count++;
+            if (p.ready) ready++;
+        });
+
+        if (count == 0) return false;
+
+        return count == ready;
+    }
+
+    // =============================
+    // SEND INPUT
+    // =============================
 
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
-        if (room == null) return;
-
-        room.Send("move", new
-        {
+        room?.Send("move", new {
             x = pos.x,
             y = pos.y,
             z = pos.z,
@@ -113,21 +178,15 @@ public class NetworkManager : MonoBehaviour
         });
     }
 
-    public void SendJump()
-    {
-        if (room == null) return;
-        room.Send("jump");
-    }
+    public void SendJump() => room?.Send("jump");
+    public void SendSit(bool sit) => room?.Send("sit", sit);
+    public void SendSkin(int id) => room?.Send("skin", id);
+    public void SendReady(bool ready) => room?.Send("ready", ready);
+    public void SendName(string name) => room?.Send("setName", name);
 
-    public void SendSit(bool sit)
+    void OnDestroy()
     {
-        if (room == null) return;
-        room.Send("sit", sit);
-    }
-
-    public void SendSkin(int id)
-    {
-        if (room == null) return;
-        room.Send("skin", id);
+        if (room != null)
+            room.OnStateChange -= OnStateChange;
     }
 }
