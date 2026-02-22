@@ -84,6 +84,7 @@ public class NetworkManager : MonoBehaviour
 
             GameObject go = PlayerRegistry.Get(id);
 
+            // SPAWN PLAYER IF NOT EXISTS
             if (go == null)
             {
                 go = Instantiate(playerPrefab);
@@ -93,6 +94,13 @@ public class NetworkManager : MonoBehaviour
                 controller.isLocal = (id == room.SessionId);
 
                 PlayerRegistry.Add(id, go);
+            }
+
+            // ===== APPLY SKIN (THIS WAS MISSING) =====
+            var skin = go.GetComponent<PlayerSkin>();
+            if (skin != null)
+            {
+                skin.ApplySkin((int)player.skin);
             }
 
             // APPLY MOVEMENT ONLY AFTER MATCH START
@@ -110,14 +118,14 @@ public class NetworkManager : MonoBehaviour
 
         OnPlayerListUpdated?.Invoke(playerList);
 
-        // COUNTDOWN EVENT (only when changed)
+        // COUNTDOWN EVENT
         if (lastCountdown != (int)state.countdown)
         {
             lastCountdown = (int)state.countdown;
             OnCountdown?.Invoke(lastCountdown);
         }
 
-        // MATCH START EVENT (only once)
+        // MATCH START EVENT
         if (state.matchStarted && !matchStartedTriggered)
         {
             matchStartedTriggered = true;
