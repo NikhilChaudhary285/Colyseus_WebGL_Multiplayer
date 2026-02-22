@@ -18,15 +18,26 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] string localhostServerURL = "ws://localhost:2567";
 
     [Header("Cloud Server URL")]
-    [SerializeField] string cloudServerURL =
+    [SerializeField]
+    string cloudServerURL =
         "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
 
     [Header("Use Cloud?")]
     [SerializeField] bool useCloud = false;
 
-    // ===== EVENTS FOR UI =====
+    // EVENTS
     public Action<string> OnRoomJoined;
     public Action<List<Player>> OnPlayerListUpdated;
+    public Action<int> OnCountdown;
+    public Action OnMatchStarted;
+
+    bool matchStartedTriggered = false;
+    int lastCountdown = -1;
+
+    public bool IsHost =>
+        room != null &&
+        room.State != null &&
+        room.SessionId == room.State.hostSessionId;
 
     void Awake()
     {
@@ -38,63 +49,30 @@ public class NetworkManager : MonoBehaviour
         Debug.Log("Connecting to: " + url);
     }
 
-    // =============================
-    // CREATE ROOM
-    // =============================
     public async Task CreateRoom(string playerName)
     {
-        try
-        {
-            room = await client.Create<GameState>("my_room");
+        room = await client.Create<GameState>("my_room");
+        CurrentRoomCode = room.RoomId;
 
-            CurrentRoomCode = room.RoomId;
-            Debug.Log("Created Room: " + CurrentRoomCode);
-            Debug.Log("Session ID: " + room.SessionId);
+        room.OnStateChange += OnStateChange;
 
-            room.OnStateChange += OnStateChange;
-
-            SendName(playerName);
-
-            OnRoomJoined?.Invoke(CurrentRoomCode);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Create Room Failed: " + e);
-        }
+        SendName(playerName);
+        OnRoomJoined?.Invoke(CurrentRoomCode);
     }
 
-    // =============================
-    // JOIN ROOM
-    // =============================
     public async Task JoinRoomByCode(string code, string playerName)
     {
-        try
-        {
-            room = await client.JoinById<GameState>(code);
+        room = await client.JoinById<GameState>(code);
+        CurrentRoomCode = code;
 
-            CurrentRoomCode = code;
-            Debug.Log("Joined Room: " + code);
-            Debug.Log("Session ID: " + room.SessionId);
+        room.OnStateChange += OnStateChange;
 
-            room.OnStateChange += OnStateChange;
-
-            SendName(playerName);
-
-            OnRoomJoined?.Invoke(code);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError("Join Failed: " + e);
-        }
+        SendName(playerName);
+        OnRoomJoined?.Invoke(code);
     }
 
-    // =============================
-    // STATE SYNC
-    // =============================
     void OnStateChange(GameState state, bool first)
     {
-        Debug.Log("STATE UPDATE RECEIVED");
-
         List<Player> playerList = new List<Player>();
 
         state.players.ForEach((id, obj) =>
@@ -117,7 +95,8 @@ public class NetworkManager : MonoBehaviour
                 PlayerRegistry.Add(id, go);
             }
 
-            if (id != room.SessionId)
+            // APPLY MOVEMENT ONLY AFTER MATCH START
+            if (state.matchStarted && id != room.SessionId)
             {
                 go.transform.position = Vector3.Lerp(
                     go.transform.position,
@@ -127,49 +106,34 @@ public class NetworkManager : MonoBehaviour
             }
 
             go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
-
-            var skin = go.GetComponent<PlayerSkin>();
-            if (skin != null)
-                skin.ApplySkin((int)player.skin);
         });
 
         OnPlayerListUpdated?.Invoke(playerList);
-        if (AreAllPlayersReady())
-        {
-            Debug.Log("ALL PLAYERS READY → START GAME");
 
-            GameStartController.Instance?.StartGame();
+        // COUNTDOWN EVENT (only when changed)
+        if (lastCountdown != (int)state.countdown)
+        {
+            lastCountdown = (int)state.countdown;
+            OnCountdown?.Invoke(lastCountdown);
+        }
+
+        // MATCH START EVENT (only once)
+        if (state.matchStarted && !matchStartedTriggered)
+        {
+            matchStartedTriggered = true;
+            OnMatchStarted?.Invoke();
         }
     }
 
-    public bool AreAllPlayersReady()
-    {
-        if (room == null || room.State == null) return false;
-
-        int count = 0;
-        int ready = 0;
-
-        room.State.players.ForEach((id, obj) =>
-        {
-            Player p = obj as Player;
-            if (p == null) return;
-
-            count++;
-            if (p.ready) ready++;
-        });
-
-        if (count == 0) return false;
-
-        return count == ready;
-    }
+    public void RequestStartGame() => room?.Send("startGame");
 
     // =============================
-    // SEND INPUT
+    // INPUT MESSAGES (GAMEPLAY)
     // =============================
-
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
-        room?.Send("move", new {
+        room?.Send("move", new
+        {
             x = pos.x,
             y = pos.y,
             z = pos.z,
@@ -177,7 +141,6 @@ public class NetworkManager : MonoBehaviour
             anim = walking ? "walk" : "idle"
         });
     }
-
     public void SendJump() => room?.Send("jump");
     public void SendSit(bool sit) => room?.Send("sit", sit);
     public void SendSkin(int id) => room?.Send("skin", id);
