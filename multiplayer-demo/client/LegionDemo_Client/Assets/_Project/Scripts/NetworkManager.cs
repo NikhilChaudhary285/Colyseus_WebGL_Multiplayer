@@ -18,9 +18,7 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] string localhostServerURL = "ws://localhost:2567";
 
     [Header("Cloud Server URL")]
-    [SerializeField]
-    string cloudServerURL =
-        "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
+    [SerializeField] string cloudServerURL = "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
 
     [Header("Use Cloud?")]
     [SerializeField] bool useCloud = false;
@@ -88,6 +86,11 @@ public class NetworkManager : MonoBehaviour
             if (go == null)
             {
                 go = Instantiate(playerPrefab);
+
+                // APPLY SERVER SPAWN POSITION
+                go.transform.position = new Vector3(player.x, player.y, player.z);
+                go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
+
                 go.name = "Player_" + id;
 
                 var controller = go.AddComponent<PlayerController>();
@@ -114,6 +117,26 @@ public class NetworkManager : MonoBehaviour
             }
 
             go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
+
+            // ===== ANIMATION SYNC =====
+            if (id != room.SessionId) // only remote players
+            {
+                var animator = go.GetComponent<Animator>();
+                if (animator != null)
+                {
+                    // WALK
+                    animator.SetBool("walk", player.anim == "walk");
+
+                    // SIT
+                    animator.SetBool("sit", player.sitting);
+
+                    // JUMP (trigger)
+                    if (player.jumping)
+                    {
+                        animator.SetTrigger("jump");
+                    }
+                }
+            }
         });
 
         OnPlayerListUpdated?.Invoke(playerList);

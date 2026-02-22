@@ -79,7 +79,7 @@ public class LobbyUI : MonoBehaviour
         {
             var item = Instantiate(playerListItemPrefab, playerListParent);
             item.GetComponent<TMP_Text>().text =
-                p.name + (p.ready ? "  ✔ Ready" : "  … Waiting");
+                p.name + (p.ready ? "  :) Ready" : "  ...Waiting");
         }
     }
 
