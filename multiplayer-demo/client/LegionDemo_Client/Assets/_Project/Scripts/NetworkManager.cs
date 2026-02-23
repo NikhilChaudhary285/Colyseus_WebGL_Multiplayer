@@ -15,7 +15,7 @@ public class NetworkManager : MonoBehaviour
     public string CurrentRoomCode;
 
     [SerializeField] string localhostServerURL = "ws://localhost:2567";
-    [SerializeField] string cloudServerURL = "wss://colyseuswebglmultiplayerserver-production.up.railway.app";
+    [SerializeField] string cloudServerURL = "wss://colyseus-server-6cav.onrender.com";
     [SerializeField] bool useCloud = false;
 
     public Action<string> OnRoomJoined;
