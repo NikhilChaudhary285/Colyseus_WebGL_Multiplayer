@@ -20,7 +20,6 @@ public static class PlayerRegistry
     {
         if (players.TryGetValue(id, out var go))
         {
-            GameObject.Destroy(go);
             players.Remove(id);
         }
     }

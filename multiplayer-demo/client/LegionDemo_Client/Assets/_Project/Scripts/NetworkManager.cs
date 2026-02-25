@@ -126,7 +126,7 @@ public class NetworkManager : MonoBehaviour
                     var remote = go.GetComponent<RemotePlayer>();
                     if (remote != null) remote.enabled = false;
 
-                    Destroy(go);  // ← actual destruction
+                    Destroy(go);
                 }
 
                 PlayerRegistry.Remove(id);  // clean registry
