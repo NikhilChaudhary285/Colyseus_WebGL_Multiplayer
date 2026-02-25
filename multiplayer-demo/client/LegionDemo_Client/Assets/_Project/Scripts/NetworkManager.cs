@@ -14,7 +14,7 @@ public class NetworkManager : MonoBehaviour
     public Room<GameState> room;
     public string CurrentRoomCode;
 
-    [SerializeField] string localhostServerURL = "ws://localhost:2567";
+    [SerializeField] string localhostServerURL = "ws://localhost:8080";
     [SerializeField] string cloudServerURL = "wss://colyseus-server-6cav.onrender.com";
     [SerializeField] bool useCloud = false;
 
@@ -25,9 +25,6 @@ public class NetworkManager : MonoBehaviour
 
     bool matchStartedTriggered = false;
     int lastCountdown = -1;
-
-    // NEW: store previous jump state per player
-    Dictionary<string, bool> lastJumpState = new Dictionary<string, bool>();
 
     public bool IsHost =>
         room != null &&
@@ -75,74 +72,59 @@ public class NetworkManager : MonoBehaviour
 
             GameObject go = PlayerRegistry.Get(id);
 
+            // ========= SPAWN PLAYER =========
             if (go == null)
             {
                 go = Instantiate(playerPrefab);
-                go.transform.position = new Vector3(player.x, player.y, player.z);
-                go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
                 go.name = "Player_" + id;
 
+                go.transform.position = new Vector3(player.x, player.y, player.z);
+                go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
+
+                // attach controller
                 var controller = go.AddComponent<PlayerController>();
                 controller.isLocal = (id == room.SessionId);
+
+                // attach remote sync component ONLY for remote players
+                if (id != room.SessionId)
+                    go.AddComponent<RemotePlayer>();
 
                 PlayerRegistry.Add(id, go);
             }
 
-            // SKIN
+            // ========= SKIN =========
             var skin = go.GetComponent<PlayerSkin>();
             if (skin != null)
                 skin.ApplySkin((int)player.skin);
 
-            // MOVEMENT
-            if (state.matchStarted && id != room.SessionId)
-            {
-                go.transform.position = Vector3.Lerp(
-                    go.transform.position,
-                    new Vector3(player.x, player.y, player.z),
-                    Time.deltaTime * 12f
-                );
-            }
-
-            go.transform.rotation = Quaternion.Euler(0, player.rotY, 0);
-
-            // ===== ANIMATION SYNC =====
+            // ========= REMOTE SYNC =========
             if (id != room.SessionId)
             {
-                var animator = go.GetComponent<Animator>();
-                if (animator != null)
-                {
-                    animator.SetBool("walk", player.anim == "walk");
-                    animator.SetBool("sit", player.sitting);
-
-                    bool wasJumping = lastJumpState.ContainsKey(id) && lastJumpState[id];
-
-                    // trigger only on false -> true transition
-                    if (!wasJumping && player.jumping)
-                        animator.SetTrigger("jump");
-
-                    lastJumpState[id] = player.jumping;
-                }
+                var remote = go.GetComponent<RemotePlayer>();
+                if (remote != null)
+                    remote.ApplyServerState(player);
             }
+
+            Debug.Log($"[STATE] Player {id} pos:{player.x},{player.y},{player.z} anim:{player.anim} jump:{player.jumping}");
         });
 
-        // ===== REMOVE DISCONNECTED PLAYERS =====
+        // ========= REMOVE DISCONNECTED =========
         foreach (var id in new List<string>(PlayerRegistry.AllIds()))
         {
             if (!currentIds.Contains(id))
-            {
                 PlayerRegistry.Remove(id);
-                lastJumpState.Remove(id);
-            }
         }
 
         OnPlayerListUpdated?.Invoke(playerList);
 
+        // ========= COUNTDOWN =========
         if (lastCountdown != (int)state.countdown)
         {
             lastCountdown = (int)state.countdown;
             OnCountdown?.Invoke(lastCountdown);
         }
 
+        // ========= MATCH START =========
         if (state.matchStarted && !matchStartedTriggered)
         {
             matchStartedTriggered = true;
@@ -154,6 +136,8 @@ public class NetworkManager : MonoBehaviour
 
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
+        Debug.Log($"[SEND MOVE] {pos} rot:{rot} walk:{walking}");
+
         room?.Send("move", new
         {
             x = pos.x,

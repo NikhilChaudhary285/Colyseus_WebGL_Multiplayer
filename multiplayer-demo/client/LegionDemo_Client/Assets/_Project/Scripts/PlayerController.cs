@@ -11,23 +11,18 @@ public class PlayerController : MonoBehaviour
     Animator anim;
     CharacterController controller;
 
-    // ===== GRAVITY / JUMP =====
     float verticalVelocity = 0f;
     float gravity = -25f;
     float jumpForce = 7f;
+
+    float sendTimer;
+    const float sendRate = 1f / 30f; // 🔥 30 updates/sec
 
     void Start()
     {
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-
         if (anim) anim.applyRootMotion = false;
-
-        if (!isLocal)
-        {
-            var ui = FindObjectOfType<SkinSwitcher>();
-            if (ui) ui.gameObject.SetActive(false);
-        }
     }
 
     void Update()
@@ -37,63 +32,60 @@ public class PlayerController : MonoBehaviour
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        // ===== ROTATION =====
         if (Mathf.Abs(h) > 0.01f)
-        {
             transform.Rotate(0f, h * rotSpeed * Time.deltaTime, 0f);
-        }
 
-        // ===== MOVE VECTOR =====
         Vector3 move = Vector3.zero;
 
         if (Mathf.Abs(v) > 0.01f)
-        {
             move += transform.forward * v * speed;
-        }
 
-        // ===== GROUND CHECK =====
+        // GROUND
         if (controller.isGrounded)
         {
             if (verticalVelocity < 0)
-                verticalVelocity = -2f; // keeps grounded
+                verticalVelocity = -2f;
 
-            // ===== JUMP =====
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 verticalVelocity = jumpForce;
-                if (anim) anim.SetTrigger("jump");
+                anim?.SetTrigger("jump");
+                Debug.Log("[LOCAL] Jump pressed");
                 NetworkManager.Instance.SendJump();
             }
         }
 
-        // ===== APPLY GRAVITY =====
         verticalVelocity += gravity * Time.deltaTime;
         move.y = verticalVelocity;
 
-        // ===== APPLY MOVEMENT =====
         controller.Move(move * Time.deltaTime);
 
-        // ===== WALK ANIMATION =====
         bool walking = Mathf.Abs(v) > 0.15f;
-        if (anim) anim.SetBool("walk", walking);
+        anim?.SetBool("walk", walking);
 
-        // ===== SEND TO SERVER =====
-        NetworkManager.Instance.SendMove(
-            transform.position,
-            transform.eulerAngles.y,
-            walking
-        );
+        // 🔥 SEND POSITION ALWAYS
+        sendTimer += Time.deltaTime;
+        if (sendTimer >= sendRate)
+        {
+            sendTimer = 0f;
 
-        // ===== SIT =====
+            NetworkManager.Instance.SendMove(
+                transform.position,
+                transform.eulerAngles.y,
+                walking
+            );
+        }
+
+        // SIT
         if (Input.GetKeyDown(KeyCode.C))
         {
-            if (anim) anim.SetBool("sit", true);
+            anim?.SetBool("sit", true);
             NetworkManager.Instance.SendSit(true);
         }
 
         if (Input.GetKeyUp(KeyCode.C))
         {
-            if (anim) anim.SetBool("sit", false);
+            anim?.SetBool("sit", false);
             NetworkManager.Instance.SendSit(false);
         }
 

@@ -669,9 +669,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 5644576365691533149, guid: a60a5bce319e2f14b966a8ad7b7ae2b3, type: 3}
   CurrentRoomCode: 
-  localhostServerURL: ws://localhost:2567
+  localhostServerURL: ws://localhost:8080
   cloudServerURL: wss://colyseus-server-6cav.onrender.com
-  useCloud: 1
+  useCloud: 0
 --- !u!1 &357608053
 GameObject:
   m_ObjectHideFlags: 0
