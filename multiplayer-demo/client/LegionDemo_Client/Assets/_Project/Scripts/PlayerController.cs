@@ -18,11 +18,19 @@ public class PlayerController : MonoBehaviour
     float sendTimer;
     const float sendRate = 1f / 30f; // 🔥 30 updates/sec
 
+    private Vector3 lastSentPosition;
+    private float lastSentRotationY = -999f;
+    private string lastSentAnim = "";
+
     void Start()
     {
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         if (anim) anim.applyRootMotion = false;
+
+        lastSentPosition = transform.position;
+        lastSentRotationY = transform.eulerAngles.y;
+        lastSentAnim = "idle";
     }
 
     void Update()
@@ -63,17 +71,27 @@ public class PlayerController : MonoBehaviour
         bool walking = Mathf.Abs(v) > 0.15f;
         anim?.SetBool("walk", walking);
 
-        // 🔥 SEND POSITION ALWAYS
         sendTimer += Time.deltaTime;
         if (sendTimer >= sendRate)
         {
             sendTimer = 0f;
 
-            NetworkManager.Instance.SendMove(
-                transform.position,
-                transform.eulerAngles.y,
-                walking
-            );
+            Vector3 currentPos = transform.position;
+            float currentRot = transform.eulerAngles.y;
+            string currentAnim = walking ? "walk" : "idle";
+
+            bool positionChanged = Vector3.Distance(currentPos, lastSentPosition) > 0.02f;
+            bool rotationChanged = Mathf.Abs(currentRot - lastSentRotationY) > 1.5f;
+            bool animChanged = currentAnim != lastSentAnim;
+
+            if (positionChanged || rotationChanged || animChanged)
+            {
+                NetworkManager.Instance.SendMove(currentPos, currentRot, walking);
+
+                lastSentPosition = currentPos;
+                lastSentRotationY = currentRot;
+                lastSentAnim = currentAnim;
+            }
         }
 
         // SIT

@@ -671,7 +671,7 @@ MonoBehaviour:
   CurrentRoomCode: 
   localhostServerURL: ws://localhost:8080
   cloudServerURL: wss://colyseus-server-6cav.onrender.com
-  useCloud: 0
+  useCloud: 1
 --- !u!1 &357608053
 GameObject:
   m_ObjectHideFlags: 0

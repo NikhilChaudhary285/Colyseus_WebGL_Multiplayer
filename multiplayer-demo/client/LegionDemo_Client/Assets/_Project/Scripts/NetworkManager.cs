@@ -134,18 +134,42 @@ public class NetworkManager : MonoBehaviour
 
     public void RequestStartGame() => room?.Send("startGame");
 
+    public void Send(string type, object message = null)
+    {
+        if (type == "move" && (message == null || message.GetType().GetProperties().Length == 0))
+        {
+            Debug.LogWarning("[SEND WARN] Blocked empty/invalid move send! Stack: " + new System.Diagnostics.StackTrace());
+            return;  // Block + log stack to find caller
+        }
+        room?.Send(type, message);
+    }
+
+    // Update all room.Send calls to use this wrapper, e.g., in SendMove:
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
-        Debug.Log($"[SEND MOVE] {pos} rot:{rot} walk:{walking}");
+        string animStr = walking ? "walk" : "idle";
 
-        room?.Send("move", new
+        // Use Dictionary instead of anonymous object — survives WebGL stripping better
+        var data = new Dictionary<string, object>
+    {
+        { "x", pos.x },
+        { "y", pos.y },
+        { "z", pos.z },
+        { "rotY", rot },
+        { "anim", animStr }
+    };
+
+        string jsonDebug = JsonUtility.ToJson(data); // For logging only
+        Debug.Log($"[SEND MOVE FULL] {pos:F2} rot:{rot:F2} anim:{animStr} → JSON: {jsonDebug}");
+
+        if (room != null)
         {
-            x = pos.x,
-            y = pos.y,
-            z = pos.z,
-            rotY = rot,
-            anim = walking ? "walk" : "idle"
-        });
+            room.Send("move", data);
+        }
+        else
+        {
+            Debug.LogWarning("[Network] room is null - cannot send move");
+        }
     }
 
     public void SendJump() => room?.Send("jump");
