@@ -108,11 +108,29 @@ public class NetworkManager : MonoBehaviour
             Debug.Log($"[STATE] Player {id} pos:{player.x},{player.y},{player.z} anim:{player.anim} jump:{player.jumping}");
         });
 
-        // ========= REMOVE DISCONNECTED =========
-        foreach (var id in new List<string>(PlayerRegistry.AllIds()))
+        // ========= REMOVE DISCONNECTED PLAYERS =========
+        var registryIds = new List<string>(PlayerRegistry.AllIds());
+        foreach (var id in registryIds)
         {
             if (!currentIds.Contains(id))
-                PlayerRegistry.Remove(id);
+            {
+                GameObject go = PlayerRegistry.Get(id);
+                if (go != null)
+                {
+                    Debug.Log($"[DESTROY] Removing disconnected player: {id} (GameObject: {go.name})");
+
+                    // Optional cleanup
+                    var controller = go.GetComponent<PlayerController>();
+                    if (controller != null) controller.enabled = false;
+
+                    var remote = go.GetComponent<RemotePlayer>();
+                    if (remote != null) remote.enabled = false;
+
+                    Destroy(go);  // ← actual destruction
+                }
+
+                PlayerRegistry.Remove(id);  // clean registry
+            }
         }
 
         OnPlayerListUpdated?.Invoke(playerList);
@@ -134,41 +152,26 @@ public class NetworkManager : MonoBehaviour
 
     public void RequestStartGame() => room?.Send("startGame");
 
-    public void Send(string type, object message = null)
-    {
-        if (type == "move" && (message == null || message.GetType().GetProperties().Length == 0))
-        {
-            Debug.LogWarning("[SEND WARN] Blocked empty/invalid move send! Stack: " + new System.Diagnostics.StackTrace());
-            return;  // Block + log stack to find caller
-        }
-        room?.Send(type, message);
-    }
-
     // Update all room.Send calls to use this wrapper, e.g., in SendMove:
     public void SendMove(Vector3 pos, float rot, bool walking)
     {
         string animStr = walking ? "walk" : "idle";
 
-        // Use Dictionary instead of anonymous object — survives WebGL stripping better
-        var data = new Dictionary<string, object>
-    {
-        { "x", pos.x },
-        { "y", pos.y },
-        { "z", pos.z },
-        { "rotY", rot },
-        { "anim", animStr }
-    };
+        var msg = new MoveMessage
+        {
+            x = pos.x,
+            y = pos.y,
+            z = pos.z,
+            rotY = rot,
+            anim = animStr
+        };
 
-        string jsonDebug = JsonUtility.ToJson(data); // For logging only
+        string jsonDebug = JsonUtility.ToJson(msg);
         Debug.Log($"[SEND MOVE FULL] {pos:F2} rot:{rot:F2} anim:{animStr} → JSON: {jsonDebug}");
 
         if (room != null)
         {
-            room.Send("move", data);
-        }
-        else
-        {
-            Debug.LogWarning("[Network] room is null - cannot send move");
+            room?.Send("move", msg);
         }
     }
 
@@ -183,4 +186,14 @@ public class NetworkManager : MonoBehaviour
         if (room != null)
             room.OnStateChange -= OnStateChange;
     }
+}
+
+[System.Serializable]
+public class MoveMessage
+{
+    public float x;
+    public float y;
+    public float z;
+    public float rotY;
+    public string anim;
 }
