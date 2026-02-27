@@ -17,14 +17,13 @@ public class LobbyUI : MonoBehaviour
 
     [Header("Buttons")]
     public Button readyButton;
-    public Button startButton; // host only
+    public Button startButton;       // Host only
 
     bool isReady = false;
 
     void Start()
     {
         var net = NetworkManager.Instance;
-
         net.OnPlayerListUpdated += UpdateLobby;
         net.OnRoomJoined += UpdateRoomText;
         net.OnCountdown += UpdateCountdown;
@@ -34,94 +33,51 @@ public class LobbyUI : MonoBehaviour
         if (startButton) startButton.gameObject.SetActive(false);
     }
 
-    // =============================
-    // READY BUTTON
-    // =============================
     public void ToggleReady()
     {
         isReady = !isReady;
         NetworkManager.Instance.SendReady(isReady);
-
-        readyButton.GetComponentInChildren<TMP_Text>().text =
-            isReady ? "Unready" : "Ready";
+        readyButton.GetComponentInChildren<TMP_Text>().text = isReady ? "Unready" : "Ready";
     }
 
-    // =============================
-    // HOST START BUTTON
-    // =============================
     public void StartMatchPressed()
     {
         NetworkManager.Instance.RequestStartGame();
     }
 
-    // =============================
-    // UPDATE LOBBY UI
-    // =============================
     void UpdateLobby(List<Player> players)
     {
         var net = NetworkManager.Instance;
-
         roomCodeText.text = "Room: " + net.CurrentRoomCode;
         playerCountText.text = players.Count + "/4 Players";
-
         waitingText.gameObject.SetActive(players.Count < 2);
 
-        // HOST BUTTON VISIBILITY
         if (startButton != null)
             startButton.gameObject.SetActive(net.IsHost);
 
-        // CLEAR OLD LIST
-        foreach (Transform t in playerListParent)
-            Destroy(t.gameObject);
-
-        // BUILD PLAYER LIST
+        // Clear and rebuild list
+        foreach (Transform t in playerListParent) Destroy(t.gameObject);
         foreach (var p in players)
         {
             var item = Instantiate(playerListItemPrefab, playerListParent);
-            item.GetComponent<TMP_Text>().text =
-                p.name + (p.ready ? "  :) Ready" : "  ...Waiting");
+            item.GetComponent<TMP_Text>().text = p.name + (p.ready ? " :) Ready" : " ...Waiting");
         }
     }
 
-    // =============================
-    // ROOM CODE UPDATE
-    // =============================
-    void UpdateRoomText(string roomText)
-    {
-        roomCodeText.text = "Room: " + roomText;
-    }
-
-    // =============================
-    // COUNTDOWN DISPLAY
-    // =============================
+    void UpdateRoomText(string roomText) => roomCodeText.text = "Room: " + roomText;
     void UpdateCountdown(int seconds)
     {
         if (!countdownText) return;
-
-        if (seconds <= 0)
-        {
-            countdownText.gameObject.SetActive(false);
-            return;
-        }
-
-        countdownText.gameObject.SetActive(true);
+        countdownText.gameObject.SetActive(seconds > 0);
         countdownText.text = "Match starts in " + seconds;
     }
 
-    // =============================
-    // MATCH STARTED
-    // =============================
-    void HandleMatchStart()
-    {
-        gameObject.SetActive(false);
-    }
+    void HandleMatchStart() => gameObject.SetActive(false);
 
     void OnDestroy()
     {
         if (NetworkManager.Instance == null) return;
-
         var net = NetworkManager.Instance;
-
         net.OnPlayerListUpdated -= UpdateLobby;
         net.OnRoomJoined -= UpdateRoomText;
         net.OnCountdown -= UpdateCountdown;

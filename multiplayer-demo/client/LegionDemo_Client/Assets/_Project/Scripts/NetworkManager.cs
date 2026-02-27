@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using Colyseus;
+﻿using Colyseus;
 using Colyseus.Schema;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
+using UnityEngine;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -26,6 +27,8 @@ public class NetworkManager : MonoBehaviour
     bool matchStartedTriggered = false;
     int lastCountdown = -1;
 
+    private bool isPinging = false;
+
     public bool IsHost =>
         room != null &&
         room.State != null &&
@@ -37,6 +40,30 @@ public class NetworkManager : MonoBehaviour
         string url = useCloud ? cloudServerURL : localhostServerURL;
         client = new Client(url);
         Debug.Log("Connecting to: " + url);
+    }
+
+    private void Start()
+    {
+        if (useCloud) StartCoroutine(KeepAlivePing());
+    }
+
+    // ====================== KEEP ALIVE PING (Fixes slow cold start) ======================
+    private IEnumerator KeepAlivePing()
+    {
+        // Safety: only run one ping coroutine per NetworkManager instance
+        if (isPinging) yield break;
+        isPinging = true;
+
+        while (true)
+        {
+            yield return new WaitForSecondsRealtime(25f);
+
+            if (room != null)
+            {
+                room?.Send("ping");
+                Debug.Log("[KEEP-ALIVE] Sent ping to server at " + Time.time);
+            }
+        }
     }
 
     public async Task CreateRoom(string playerName)
@@ -185,6 +212,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (room != null)
             room.OnStateChange -= OnStateChange;
+        StopAllCoroutines();
     }
 }
 
