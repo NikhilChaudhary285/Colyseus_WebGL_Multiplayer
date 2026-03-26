@@ -5,12 +5,14 @@ A multiplayer prototype built with Unity WebGL and Colyseus, focused on explorin
 ⚠️ This is a technical prototype, not a full production game.
 The goal of this project is to experiment with multiplayer networking concepts and compare Colyseus with systems like Photon and Socket.IO, which I have previously worked with.
 
+
 🚀 Live Demo
 
 👉 https://colyseus-multiplayer.netlify.app/
 
 ⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
 If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
+
 
 🧠 Project Goal
 
@@ -19,6 +21,7 @@ This project was built to:
 • Understand real-time state synchronization across clients
 • Experiment with WebGL multiplayer in the browser
 • Compare Colyseus vs Photon vs Socket.IO networking approaches
+
 
 🎮 Features
 • ✅ Create / Join rooms using unique room codes
@@ -29,6 +32,7 @@ This project was built to:
 • ✅ Skin switching synchronized across players
 • ✅ Host-controlled match start system
 • ✅ Player join, leave, and disconnect handling
+
 
 ⚙️ Tech Stack
 
@@ -43,6 +47,7 @@ Server
 Deployment
 • Frontend: Netlify
 • Backend: Render
+
 
 🏗 Architecture Overview
 
@@ -72,6 +77,7 @@ Flow:
 • Server patch rate tuning
 • Handling delays due to free-tier backend hosting
 
+
 🎮 Controls
 ----------------------
 Action	      || Key
@@ -81,9 +87,11 @@ Action	      || Key
 • Sit	        || C
 • Change Skin	|| 1 – 4
 
+
 📹 Demo Video
 
 👉 https://drive.google.com/file/d/1DuBpsr_5JBLUTJuovOrSIuQBQQidUlVe/view?usp=sharing
+
 
 📂 Repositories
 
@@ -92,6 +100,7 @@ Action	      || Key
 
 • Colyseus Server
 👉 https://github.com/NikhilChaudhary285/Colyseus_WebGL_Server
+
 
 🔄 Comparison with Photon and Socket.IO
 
@@ -102,12 +111,15 @@ This project helped me understand:
 • Flexibility of building a custom backend using Colyseus
 • Greater control over game state and networking flow
 
+
 🤝 Contribution
 This is a personal learning project, but feedback and suggestions are always welcome!
+
 
 👨‍💻 Author
 Nikhil Chaudhary
 Unity Multiplayer Developer
+
 
 ⭐ If you found this useful
 
