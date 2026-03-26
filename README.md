@@ -1,7 +1,6 @@
 🎮 Unity WebGL Multiplayer Prototype (Colyseus)
 
-A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.
-<br>
+A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.<br><br>
 ⚠️ This is a technical prototype, not a full production game.
 The goal of this project is to experiment with multiplayer networking concepts and compare Colyseus with systems like Photon and Socket.IO, which I have previously worked with.
 
@@ -9,7 +8,7 @@ The goal of this project is to experiment with multiplayer networking concepts a
 
 🚀 Live Demo
 
-👉 https://colyseus-multiplayer.netlify.app/ <br>
+👉 https://colyseus-multiplayer.netlify.app/ <br><br>
 
 ⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
 If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
@@ -27,6 +26,7 @@ This project was built to:<br>
 ----------------------
 
 🎮 Features<br>
+
 • ✅ Create / Join rooms using unique room codes<br>
 • ✅ Real-time multiplayer gameplay in browser (WebGL)<br>
 • ✅ Server-authoritative movement and gameplay logic<br>
@@ -63,6 +63,7 @@ This project follows a server-authoritative multiplayer model:<br>
 • Updated state is broadcast to all connected clients<br>
 
 Flow:
+
 1. Player connects to the server
 2. Player joins or creates a room
 3. Client sends input (movement, actions)
@@ -71,7 +72,7 @@ Flow:
 
 ----------------------
 
-🔧 Key Technical Learnings<br>
+🔧 Key Technical Learnings<br><br>
 • Handling real-time state synchronization<br>
 • Managing client-server communication via WebSockets<br>
 • Solving animation synchronization issues<br>
@@ -80,7 +81,7 @@ Flow:
 
 ----------------------
 
-🧪 Challenges Faced<br>
+🧪 Challenges Faced<br><br>
 • Animation desynchronization between client and server<br>
 • Movement inconsistencies across clients<br>
 • Server patch rate tuning<br>
@@ -88,7 +89,7 @@ Flow:
 
 ----------------------
 
-🎮 Controls<br>
+🎮 Controls<br><br>
 Action	      || Key<br>
 • Move	      || WASD<br>
 • Jump	      || Space<br>
