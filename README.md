@@ -124,13 +124,13 @@ This project helped me understand:
 
 ----------------------
 
-🤝 Contribution
+🤝 Contribution -
 This is a personal learning project, but feedback and suggestions are always welcome!
 
 ----------------------
 
 👨‍💻 Author
-Nikhil Chaudhary
+Nikhil Chaudhary - 
 Unity Multiplayer Developer
 
 ----------------------
