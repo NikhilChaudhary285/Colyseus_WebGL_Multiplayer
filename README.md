@@ -18,7 +18,7 @@ If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.
 
 🧠 Project Goal
 
-This project was built to:
+This project was built to:<br>
 • Explore server-authoritative multiplayer architecture
 • Understand real-time state synchronization across clients
 • Experiment with WebGL multiplayer in the browser
@@ -26,7 +26,7 @@ This project was built to:
 
 ----------------------
 
-🎮 Features
+🎮 Features<br>
 • ✅ Create / Join rooms using unique room codes
 • ✅ Real-time multiplayer gameplay in browser (WebGL)
 • ✅ Server-authoritative movement and gameplay logic
@@ -40,15 +40,15 @@ This project was built to:
 
 ⚙️ Tech Stack
 
-Client
+Client<br>
 • Unity (WebGL)
 • C#
 
-Server
+Server<br>
 • Colyseus (Node.js)
 • WebSockets
 
-Deployment
+Deployment<br>
 • Frontend: Netlify
 • Backend: Render
 
@@ -56,7 +56,7 @@ Deployment
 
 🏗 Architecture Overview
 
-This project follows a server-authoritative multiplayer model:
+This project follows a server-authoritative multiplayer model:<br>
 • The server controls the game state
 • Clients send input/events
 • The server validates and processes inputs
@@ -69,7 +69,7 @@ Flow:
 4. Server processes input and updates state
 5. All clients receive synchronized updates
 
-🔧 Key Technical Learnings
+🔧 Key Technical Learnings<br>
 • Handling real-time state synchronization
 • Managing client-server communication via WebSockets
 • Solving animation synchronization issues
@@ -78,7 +78,7 @@ Flow:
 
 ----------------------
 
-🧪 Challenges Faced
+🧪 Challenges Faced<br>
 • Animation desynchronization between client and server
 • Movement inconsistencies across clients
 • Server patch rate tuning
@@ -86,10 +86,8 @@ Flow:
 
 ----------------------
 
-🎮 Controls
-______________________
-Action	      || Key
-______________________
+🎮 Controls<br>
+Action	      || Key<br>
 • Move	      || WASD
 • Jump	      || Space
 • Sit	        || C
@@ -117,20 +115,19 @@ ______________________
 
 I have previously worked with Photon and Socket.IO for multiplayer systems.
 
-This project helped me understand:
+This project helped me understand:<br>
 • Differences between client-authoritative vs server-authoritative models
 • Flexibility of building a custom backend using Colyseus
 • Greater control over game state and networking flow
 
 ----------------------
 
-🤝 Contribution -
-This is a personal learning project, but feedback and suggestions are always welcome!
+🤝 Contribution<br> This is a personal learning project, but feedback and suggestions are always welcome!
 
 ----------------------
 
-👨‍💻 Author
-Nikhil Chaudhary - 
+👨‍💻 Author<br>
+Nikhil Chaudhary<br>
 Unity Multiplayer Developer
 
 ----------------------
