@@ -1,6 +1,7 @@
-🎮 Unity WebGL Multiplayer Prototype (Colyseus)
+🎮 Unity WebGL Multiplayer Prototype (Colyseus)<br>
 
-A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.<br><br>
+A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.<br>
+
 ⚠️ This is a technical prototype, not a full production game.
 The goal of this project is to experiment with multiplayer networking concepts and compare Colyseus with systems like Photon and Socket.IO, which I have previously worked with.
 
@@ -8,7 +9,7 @@ The goal of this project is to experiment with multiplayer networking concepts a
 
 🚀 Live Demo
 
-👉 https://colyseus-multiplayer.netlify.app/ <br><br>
+👉 https://colyseus-multiplayer.netlify.app/ <br>
 
 ⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
 If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
@@ -81,7 +82,8 @@ Flow:
 
 ----------------------
 
-🧪 Challenges Faced<br><br>
+🧪 Challenges Faced<br>
+
 • Animation desynchronization between client and server<br>
 • Movement inconsistencies across clients<br>
 • Server patch rate tuning<br>
@@ -89,8 +91,9 @@ Flow:
 
 ----------------------
 
-🎮 Controls<br><br>
-Action	      || Key<br>
+🎮 Controls<br>
+
+Actions	      || Keys<br>
 • Move	      || WASD<br>
 • Jump	      || Space<br>
 • Sit	        || C<br>
@@ -125,11 +128,13 @@ This project helped me understand:<br>
 
 ----------------------
 
-🤝 Contribution<br> This is a personal learning project, but feedback and suggestions are always welcome!
+🤝 Contribution<br>
+This is a personal learning project, but feedback and suggestions are always welcome!
 
 ----------------------
 
 👨‍💻 Author<br>
+
 Nikhil Chaudhary<br>
 Unity Multiplayer Developer
 
