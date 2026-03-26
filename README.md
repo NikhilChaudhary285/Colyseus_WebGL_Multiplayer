@@ -9,8 +9,8 @@ The goal of this project is to experiment with multiplayer networking concepts a
 
 🚀 Live Demo
 
-👉 https://colyseus-multiplayer.netlify.app/
-<br>
+👉 https://colyseus-multiplayer.netlify.app/ <br>
+
 ⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
 If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
 
@@ -41,16 +41,16 @@ This project was built to:<br>
 ⚙️ Tech Stack
 
 Client<br>
-• Unity (WebGL)
-• C#
+• Unity (WebGL)<br>
+• C#<br>
 
 Server<br>
-• Colyseus (Node.js)
-• WebSockets
+• Colyseus (Node.js)<br>
+• WebSockets<br>
 
 Deployment<br>
-• Frontend: Netlify
-• Backend: Render
+• Frontend: Netlify<br>
+• Backend: Render<br>
 
 ----------------------
 
@@ -68,6 +68,8 @@ Flow:
 3. Client sends input (movement, actions)
 4. Server processes input and updates state
 5. All clients receive synchronized updates
+
+----------------------
 
 🔧 Key Technical Learnings<br>
 • Handling real-time state synchronization<br>
