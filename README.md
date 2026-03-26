@@ -1,304 +1,114 @@
-# \# 🎮 Unity WebGL Multiplayer Prototype (Colyseus)
+🎮 Unity WebGL Multiplayer Prototype (Colyseus)
 
-# 
+A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.
 
-# A \*\*multiplayer prototype built with Unity WebGL and Colyseus\*\*, focused on exploring \*\*server-authoritative architecture and real-time synchronization\*\* in browser-based games.
+⚠️ This is a technical prototype, not a full production game.
+The goal of this project is to experiment with multiplayer networking concepts and compare Colyseus with systems like Photon and Socket.IO, which I have previously worked with.
 
-# 
+🚀 Live Demo
 
-# > ⚠️ This is a \*\*technical prototype\*\*, not a full production game.  
+👉 https://colyseus-multiplayer.netlify.app/
 
-# > The goal of this project is to experiment with multiplayer networking concepts and architecture using Colyseus as i already worked with Photon And Socket.IO multiplayer networking systems and architecture just for comparison.
+⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
+If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
 
-# 
+🧠 Project Goal
 
-# \---
+This project was built to:
+• Explore server-authoritative multiplayer architecture
+• Understand real-time state synchronization across clients
+• Experiment with WebGL multiplayer in the browser
+• Compare Colyseus vs Photon vs Socket.IO networking approaches
 
-# 
+🎮 Features
+• ✅ Create / Join rooms using unique room codes
+• ✅ Real-time multiplayer gameplay in browser (WebGL)
+• ✅ Server-authoritative movement and gameplay logic
+• ✅ Player state synchronization across clients
+• ✅ Animation sync (walk, jump, sit)
+• ✅ Skin switching synchronized across players
+• ✅ Host-controlled match start system
+• ✅ Player join, leave, and disconnect handling
 
-# \## 🚀 Live Demo
+⚙️ Tech Stack
 
-# 
+Client
+• Unity (WebGL)
+• C#
 
-# 👉 https://colyseus-multiplayer.netlify.app/
+Server
+• Colyseus (Node.js)
+• WebSockets
 
-# 
+Deployment
+• Frontend: Netlify
+• Backend: Render
 
-# > Note: The backend runs on a free-tier server and may take a few seconds to wake up and if you want to play that game please mail me at: (nikhilchaudhary285@gmail.com). So, I can restart or run the server so anyone can enjoy the game to play.
+🏗 Architecture Overview
 
-# 
+This project follows a server-authoritative multiplayer model:
+• The server controls the game state
+• Clients send input/events
+• The server validates and processes inputs
+• Updated state is broadcast to all connected clients
 
-# \---
+Flow:
+1. Player connects to the server
+2. Player joins or creates a room
+3. Client sends input (movement, actions)
+4. Server processes input and updates state
+5. All clients receive synchronized updates
 
-# 
+🔧 Key Technical Learnings
+• Handling real-time state synchronization
+• Managing client-server communication via WebSockets
+• Solving animation synchronization issues
+• Preventing state drift and inconsistencies
+• Managing player lifecycle (join/leave/disconnect)
 
-# \## 🧠 Project Goal
+🧪 Challenges Faced
+• Animation desynchronization between client and server
+• Movement inconsistencies across clients
+• Server patch rate tuning
+• Handling delays due to free-tier backend hosting
 
-# 
+🎮 Controls
+----------------------
+Action	      || Key
+----------------------
+• Move	      || WASD
+• Jump	      || Space
+• Sit	        || C
+• Change Skin	|| 1 – 4
 
-# This project was built to:
+📹 Demo Video
 
-# 
+👉 https://drive.google.com/file/d/1DuBpsr_5JBLUTJuovOrSIuQBQQidUlVe/view?usp=sharing
 
-# \- Explore \*\*server-authoritative multiplayer architecture\*\*
+📂 Repositories
 
-# \- Understand \*\*state synchronization across clients\*\*
+• Unity Client
+👉 https://github.com/NikhilChaudhary285/Colyseus_WebGL_Multiplayer
 
-# \- Experiment with \*\*WebGL multiplayer in browser\*\*
+• Colyseus Server
+👉 https://github.com/NikhilChaudhary285/Colyseus_WebGL_Server
 
-# \- Learn and compare \*\*Colyseus vs Photon and Socket.IO networking approaches\*\*
+🔄 Comparison with Photon and Socket.IO
 
-# 
+I have previously worked with Photon and Socket.IO for multiplayer systems.
 
-# \---
+This project helped me understand:
+• Differences between client-authoritative vs server-authoritative models
+• Flexibility of building a custom backend using Colyseus
+• Greater control over game state and networking flow
 
-# 
+🤝 Contribution
+This is a personal learning project, but feedback and suggestions are always welcome!
 
-# \## 🎮 Features
+👨‍💻 Author
+Nikhil Chaudhary
+Unity Multiplayer Developer
 
-# 
+⭐ If you found this useful
 
-# \- ✅ Create / Join Room (unique room codes)
-
-# \- ✅ Real-time multiplayer in browser (WebGL)
-
-# \- ✅ Server-authoritative movement \& gameplay logic
-
-# \- ✅ Player synchronization across multiple clients
-
-# \- ✅ Animation sync (walk, jump, sit)
-
-# \- ✅ Skin switching synced across players
-
-# \- ✅ Host-controlled match start system
-
-# \- ✅ Player join / leave / despawn handling
-
-# 
-
-# \---
-
-# 
-
-# \## ⚙️ Tech Stack
-
-# 
-
-# \### Client
-
-# \- Unity (WebGL)
-
-# \- C#
-
-# 
-
-# \### Server
-
-# \- Colyseus (Node.js)
-
-# \- WebSockets
-
-# 
-
-# \### Deployment
-
-# \- Frontend: Netlify
-
-# \- Backend: Render
-
-# 
-
-# \---
-
-# 
-
-# \## 🏗 Architecture Overview
-
-# 
-
-# This project follows a \*\*server-authoritative multiplayer model\*\*:
-
-# 
-
-# \- The \*\*server controls game state\*\*
-
-# \- Clients send \*\*input/events\*\*
-
-# \- Server validates and updates state
-
-# \- State is \*\*broadcast to all connected clients\*\*
-
-# 
-
-# \### Flow:
-
-# 
-
-# 1\. Player connects to server
-
-# 2\. Joins or creates a room
-
-# 3\. Sends input (movement, actions)
-
-# 4\. Server processes and updates state
-
-# 5\. All clients receive synchronized updates
-
-# 
-
-# \---
-
-# 
-
-# \## 🔧 Key Technical Learnings
-
-# 
-
-# \- Handling \*\*real-time state synchronization\*\*
-
-# \- Managing \*\*client-server communication using WebSockets\*\*
-
-# \- Solving \*\*animation sync issues across network\*\*
-
-# \- Preventing \*\*state drift and inconsistent updates\*\*
-
-# \- Managing \*\*player lifecycle (join/leave/disconnect)\*\*
-
-# 
-
-# \---
-
-# 
-
-# \## 🧪 Challenges Faced
-
-# 
-
-# \- Animation desync between client \& server
-
-# \- Movement inconsistency across clients
-
-# \- Server patch rate tuning
-
-# \- Handling idle server delays (free-tier hosting)
-
-# 
-
-# \---
-
-# 
-
-# \## 🎮 Controls
-
-# 
-
-# | Action        | Key        |
-
-# |--------------|-----------|
-
-# | Move         | WASD      |
-
-# | Jump         | Space     |
-
-# | Sit          | C         |
-
-# | Change Skin  | 1 – 4     |
-
-# 
-
-# \---
-
-# 
-
-# \## 📹 Demo Video
-
-# 
-
-# 👉 (Google Drive Link): https://drive.google.com/file/d/1DuBpsr\_5JBLUTJuovOrSIuQBQQidUlVe/view?usp=sharing
-
-# 
-
-# \---
-
-# 
-
-# \## 📂 Repositories
-
-# 
-
-# \### Unity Client
-
-# 👉 https://github.com/NikhilChaudhary285/Colyseus\_WebGL\_Multiplayer
-
-# 
-
-# \### Colyseus Server
-
-# 👉 https://github.com/NikhilChaudhary285/Colyseus\_WebGL\_Server
-
-# 
-
-# \---
-
-# 
-
-# \## 🔄 Comparison with Photon
-
-# 
-
-# Previously, I have worked with Photon and Socket.IO for multiplayer systems.
-
-# 
-
-# This project helped me understand:
-
-# 
-
-# \- Differences between \*\*client-authoritative vs server-authoritative models\*\*
-
-# \- Flexibility of \*\*custom backend with Colyseus\*\*
-
-# \- Deeper control over \*\*game state and networking flow\*\*
-
-# 
-
-# \---
-
-# 
-
-# \---
-
-# 
-
-# \## 🤝 Contribution
-
-# 
-
-# This is a personal learning project, but feedback and suggestions are always welcome!
-
-# 
-
-# \---
-
-# 
-
-# \## 👨‍💻 Author
-
-# 
-
-# \*\*Nikhil Chaudhary\*\*  
-
-# Unity Multiplayer Developer  
-
-# 
-
-# \---
-
-# 
-
-# \## ⭐ If you found this useful
-
-# 
-
-# Feel free to star the repo ⭐ and connect with me!
-
+Feel free to ⭐ star the repository and connect with me!
