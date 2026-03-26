@@ -1,7 +1,7 @@
 🎮 Unity WebGL Multiplayer Prototype (Colyseus)
 
 A multiplayer prototype built with Unity WebGL and Colyseus, focused on exploring server-authoritative architecture and real-time synchronization in browser-based games.
-
+<br>
 ⚠️ This is a technical prototype, not a full production game.
 The goal of this project is to experiment with multiplayer networking concepts and compare Colyseus with systems like Photon and Socket.IO, which I have previously worked with.
 
@@ -10,7 +10,7 @@ The goal of this project is to experiment with multiplayer networking concepts a
 🚀 Live Demo
 
 👉 https://colyseus-multiplayer.netlify.app/
-
+<br>
 ⚠️ Note: The backend runs on a free-tier server and may take a few seconds to wake up.
 If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.com, and I can restart the server.
 
@@ -19,22 +19,22 @@ If the game is not running, feel free to contact me at nikhilchaudhary285@gmail.
 🧠 Project Goal
 
 This project was built to:<br>
-• Explore server-authoritative multiplayer architecture
-• Understand real-time state synchronization across clients
-• Experiment with WebGL multiplayer in the browser
-• Compare Colyseus vs Photon vs Socket.IO networking approaches
+• Explore server-authoritative multiplayer architecture<br>
+• Understand real-time state synchronization across clients<br>
+• Experiment with WebGL multiplayer in the browser<br>
+• Compare Colyseus vs Photon vs Socket.IO networking approaches<br>
 
 ----------------------
 
 🎮 Features<br>
-• ✅ Create / Join rooms using unique room codes
-• ✅ Real-time multiplayer gameplay in browser (WebGL)
-• ✅ Server-authoritative movement and gameplay logic
-• ✅ Player state synchronization across clients
-• ✅ Animation sync (walk, jump, sit)
-• ✅ Skin switching synchronized across players
-• ✅ Host-controlled match start system
-• ✅ Player join, leave, and disconnect handling
+• ✅ Create / Join rooms using unique room codes<br>
+• ✅ Real-time multiplayer gameplay in browser (WebGL)<br>
+• ✅ Server-authoritative movement and gameplay logic<br>
+• ✅ Player state synchronization across clients<br>
+• ✅ Animation sync (walk, jump, sit)<br>
+• ✅ Skin switching synchronized across players<br>
+• ✅ Host-controlled match start system<br>
+• ✅ Player join, leave, and disconnect handling<br>
 
 ----------------------
 
@@ -57,10 +57,10 @@ Deployment<br>
 🏗 Architecture Overview
 
 This project follows a server-authoritative multiplayer model:<br>
-• The server controls the game state
-• Clients send input/events
-• The server validates and processes inputs
-• Updated state is broadcast to all connected clients
+• The server controls the game state<br>
+• Clients send input/events<br>
+• The server validates and processes inputs<br>
+• Updated state is broadcast to all connected clients<br>
 
 Flow:
 1. Player connects to the server
@@ -70,28 +70,28 @@ Flow:
 5. All clients receive synchronized updates
 
 🔧 Key Technical Learnings<br>
-• Handling real-time state synchronization
-• Managing client-server communication via WebSockets
-• Solving animation synchronization issues
-• Preventing state drift and inconsistencies
-• Managing player lifecycle (join/leave/disconnect)
+• Handling real-time state synchronization<br>
+• Managing client-server communication via WebSockets<br>
+• Solving animation synchronization issues<br>
+• Preventing state drift and inconsistencies<br>
+• Managing player lifecycle (join/leave/disconnect)<br>
 
 ----------------------
 
 🧪 Challenges Faced<br>
-• Animation desynchronization between client and server
-• Movement inconsistencies across clients
-• Server patch rate tuning
-• Handling delays due to free-tier backend hosting
+• Animation desynchronization between client and server<br>
+• Movement inconsistencies across clients<br>
+• Server patch rate tuning<br>
+• Handling delays due to free-tier backend hosting<br>
 
 ----------------------
 
 🎮 Controls<br>
 Action	      || Key<br>
-• Move	      || WASD
-• Jump	      || Space
-• Sit	        || C
-• Change Skin	|| 1 – 4
+• Move	      || WASD<br>
+• Jump	      || Space<br>
+• Sit	        || C<br>
+• Change Skin	|| 1 – 4<br>
 
 ----------------------
 
@@ -116,9 +116,9 @@ Action	      || Key<br>
 I have previously worked with Photon and Socket.IO for multiplayer systems.
 
 This project helped me understand:<br>
-• Differences between client-authoritative vs server-authoritative models
-• Flexibility of building a custom backend using Colyseus
-• Greater control over game state and networking flow
+• Differences between client-authoritative vs server-authoritative models<br>
+• Flexibility of building a custom backend using Colyseus<br>
+• Greater control over game state and networking flow<br>
 
 ----------------------
 
