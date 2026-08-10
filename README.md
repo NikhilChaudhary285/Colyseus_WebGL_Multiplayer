@@ -131,7 +131,7 @@ This is a personal learning project, but feedback and suggestions are always wel
 
 ## 👨‍💻 Author
 
-**Nikhil Chaudhary**
+**Nikhil Chaudhary**<br>
 Unity Multiplayer Developer
 
 ---
