@@ -11,6 +11,8 @@ A multiplayer prototype built with Unity WebGL and Colyseus, focused on explorin
 
 👉 **[colyseus-multiplayer.netlify.app](https://colyseus-multiplayer.netlify.app/)**
 
+> 💻 **Desktop/Laptop Recommended:** This WebGL prototype is currently designed and tested for **desktop/laptop browsers** using keyboard controls (WASD, Space, C, 1–4). Mobile touch controls have not been implemented in this prototype, so **Android/iOS devices are not currently supported for gameplay**.
+
 ⚠️ The backend runs on a free-tier server and may take **30–50 seconds** to wake up on first load. If the game isn't running, email me at nikhilchaudhary285@gmail.com and I'll restart the server.
 
 ---
